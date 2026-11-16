@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>陽光湖畔釣魚</title>
+  <style>
+    :root {
+      --ink: #14324a;
+      --blue: #39a9db;
+      --deep-blue: #1676b7;
+      --yellow: #ffd166;
+      --green: #63b76b;
+      --red: #ef6f6c;
+      --card: rgba(255, 255, 255, 0.94);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Trebuchet MS", "Noto Sans TC", sans-serif;
+      background: linear-gradient(#9be3ff 0 42%, #8bd078 42% 100%);
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      color: var(--ink);
+      cursor: pointer;
+      font: inherit;
+      font-weight: 700;
+      min-height: 48px;
+      padding: 12px 20px;
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+
+    button:hover:not(:disabled) {
+      filter: brightness(1.05);
+      transform: translateY(-2px);
+    }
+
+    button:focus-visible {
+      outline: 4px solid #fff;
+      outline-offset: 3px;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      filter: grayscale(0.5);
+      opacity: 0.55;
+    }
+
+    .game-shell {
+      margin: 0 auto;
+      max-width: 1000px;
+      padding: 22px 16px 30px;
+    }
+
+    header {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      color: #fff;
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      margin: 0;
+      text-shadow: 0 3px 0 rgba(20, 50, 74, 0.16);
+    }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .stat {
+      background: var(--card);
+      border-radius: 16px;
+      box-shadow: 0 5px 0 rgba(20, 50, 74, 0.12);
+      min-width: 105px;
+      padding: 9px 14px;
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.4rem;
+    }
+
+    .stat span {
+      font-size: 0.83rem;
+    }
+
+    .fortune-card {
+      background: var(--card);
+      border-radius: 22px;
+      box-shadow: 0 7px 0 rgba(20, 50, 74, 0.12);
+      margin: 18px auto 0;
+      max-width: 700px;
+      padding: 18px 22px;
+      text-align: center;
+    }
+
+    .fortune-card h2 {
+      font-size: 1.1rem;
+      margin: 0 0 6px;
+    }
+
+    .fortune-result {
+      color: #d47725;
+      font-size: clamp(2rem, 8vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.1;
+      min-height: 58px;
+    }
+
+    .fortune-advice {
+      margin: 8px 0 0;
+    }
+
+    .scene {
+      background:
+        radial-gradient(circle at 18% 15%, #fff 0 2%, transparent 2.5%),
+        radial-gradient(circle at 23% 14%, #fff 0 3%, transparent 3.5%),
+        linear-gradient(#80d8f5 0 33%, #54bde1 33% 34%, #39a9db 34% 100%);
+      border: 5px solid rgba(255, 255, 255, 0.8);
+      border-radius: 28px;
+      box-shadow: 0 10px 0 rgba(20, 50, 74, 0.13);
+      height: 480px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .sun {
+      background: var(--yellow);
+      border-radius: 50%;
+      box-shadow: 0 0 0 12px rgba(255, 209, 102, 0.25);
+      height: 64px;
+      position: absolute;
+      right: 10%;
+      top: 10%;
+      width: 64px;
+    }
+
+    .hill {
+      background: #75be70;
+      border-radius: 50% 50% 0 0;
+      bottom: 60%;
+      height: 115px;
+      position: absolute;
+      width: 58%;
+    }
+
+    .hill.left {
+      left: -12%;
+    }
+
+    .hill.right {
+      right: -15%;
+      width: 62%;
+    }
+
+    .tree {
+      bottom: 61%;
+      font-size: 4.3rem;
+      position: absolute;
+      z-index: 1;
+    }
+
+    .tree.one {
+      left: 8%;
+    }
+
+    .tree.two {
+      right: 10%;
+    }
+
+    .boat {
+      bottom: 39%;
+      font-size: clamp(5rem, 13vw, 8rem);
+      left: 50%;
+      line-height: 1;
+      position: absolute;
+      transform: translateX(-50%) rotate(-3deg);
+      z-index: 3;
+    }
+
+    .line {
+      background: #fff;
+      display: none;
+      height: 170px;
+      left: calc(50% + 40px);
+      position: absolute;
+      top: 49%;
+      transform: rotate(4deg);
+      transform-origin: top;
+      width: 2px;
+      z-index: 2;
+    }
+
+    .line.active {
+      display: block;
+    }
+
+    .float {
+      background: var(--red);
+      border: 3px solid #fff;
+      border-radius: 50%;
+      display: none;
+      height: 18px;
+      left: calc(50% + 67px);
+      position: absolute;
+      top: 83%;
+      width: 18px;
+      z-index: 2;
+    }
+
+    .float.active {
+      animation: bob 0.8s ease-in-out infinite alternate;
+      display: block;
+    }
+
+    @keyframes bob {
+      to {
+        transform: translateY(-10px);
+      }
+    }
+
+    .fish {
+      bottom: 18%;
+      font-size: 3rem;
+      opacity: 0.9;
+      position: absolute;
+      z-index: 1;
+    }
+
+    .fish.one {
+      animation: swimOne 8s linear infinite;
+      left: -8%;
+    }
+
+    .fish.two {
+      animation: swimTwo 10s linear infinite;
+      bottom: 30%;
+      left: 85%;
+    }
+
+    .fish.three {
+      animation: swimThree 12s linear infinite;
+      bottom: 43%;
+      font-size: 2.4rem;
+      left: 10%;
+    }
+
+    .fish.four {
+      animation: swimFour 14s linear infinite;
+      bottom: 53%;
+      font-size: 2.2rem;
+      left: 78%;
+    }
+
+    .fish.five {
+      animation: swimFive 9s linear infinite;
+      bottom: 24%;
+      font-size: 2.5rem;
+      left: 42%;
+    }
+
+    .fish.six {
+      animation: swimSix 11s linear infinite;
+      bottom: 37%;
+      font-size: 2.1rem;
+      left: 65%;
+    }
+
+    @keyframes swimOne {
+      50% {
+        transform: translateX(520px) scaleX(-1);
+      }
+      100% {
+        transform: translateX(1040px);
+      }
+    }
+
+    @keyframes swimTwo {
+      50% {
+        transform: translateX(-380px) scaleX(-1);
+      }
+      100% {
+        transform: translateX(-760px);
+      }
+    }
+
+    @keyframes swimThree {
+      50% {
+        transform: translateX(420px) scaleX(-1);
+      }
+      100% {
+        transform: translateX(840px);
+      }
+    }
+
+    @keyframes swimFour {
+      50% {
+        transform: translateX(-420px) scaleX(-1);
+      }
+      100% {
+        transform: translateX(-840px);
+      }
+    }
+
+    @keyframes swimFive {
+      50% {
+        transform: translateX(380px) scaleX(-1);
+      }
+      100% {
+        transform: translateX(760px);
+      }
+    }
+
+    @keyframes swimSix {
+      50% {
+        transform: translateX(-360px) scaleX(-1);
+      }
+      100% {
+        transform: translateX(-720px);
+      }
+    }
+
+    .message {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 14px;
+      left: 50%;
+      max-width: 90%;
+      padding: 10px 16px;
+      position: absolute;
+      text-align: center;
+      top: 8%;
+      transform: translateX(-50%);
+      width: max-content;
+      z-index: 4;
+    }
+
+    .controls {
+      align-items: center;
+      background: var(--card);
+      border-radius: 22px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 18px;
+      padding: 16px;
+    }
+
+    .cast {
+      background: var(--yellow);
+    }
+
+    .catch {
+      background: var(--green);
+    }
+
+    .restart {
+      background: #d7ecf7;
+    }
+
+    .instructions {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin: 16px auto 0;
+      max-width: 750px;
+      text-align: center;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 600px) {
+      .scene {
+        height: 400px;
+      }
+
+      .boat {
+        bottom: 41%;
+        left: 50%;
+      }
+
+      .line {
+        left: calc(50% + 40px);
+      }
+
+      .float {
+        left: calc(50% + 67px);
+      }
+
+      .controls button {
+        flex: 1 1 40%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="game-shell">
+    <header>
+      <h1>湖畔求籤釣魚</h1>
+      <div class="stats" aria-label="遊戲資訊">
+        <div class="stat"><strong id="fortuneStatus">—</strong><span>今日運勢</span></div>
+      </div>
+    </header>
+
+    <section class="scene" aria-label="湖面遊戲場景">
+      <div class="sun" aria-hidden="true"></div>
+      <div class="hill left" aria-hidden="true"></div>
+      <div class="hill right" aria-hidden="true"></div>
+      <div class="tree one" aria-hidden="true">🌲</div>
+      <div class="tree two" aria-hidden="true">🌳</div>
+      <div class="boat" aria-hidden="true">🛶</div>
+      <div id="line" class="line" aria-hidden="true"></div>
+      <div id="float" class="float" aria-hidden="true"></div>
+      <div class="fish one" aria-hidden="true">🐟</div>
+      <div class="fish two" aria-hidden="true">🐠</div>
+      <div class="fish three" aria-hidden="true">🐟</div>
+      <div class="fish four" aria-hidden="true">🐡</div>
+      <div class="fish five" aria-hidden="true">🐠</div>
+      <div class="fish six" aria-hidden="true">🐟</div>
+      <div id="message" class="message" role="status">準備好了嗎？按空白鍵拋竿開始！</div>
+    </section>
+
+    <section class="fortune-card" aria-live="polite">
+      <h2>🔮 今日求籤結果</h2>
+      <div id="fortuneResult" class="fortune-result">尚未抽籤</div>
+      <p id="fortuneAdvice" class="fortune-advice">釣起一條魚，就能知道今天的運勢。</p>
+    </section>
+
+    <div class="controls">
+      <button id="castButton" class="cast" type="button">🎣 空白鍵：拋竿</button>
+      <button id="catchButton" class="catch" type="button" disabled>🪝 空白鍵：收線</button>
+      <button id="restartButton" class="restart" type="button">🔄 重新開始</button>
+    </div>
+
+    <p class="instructions">
+      操作方式：按空白鍵拋竿，等待魚游到浮標旁；魚碰到浮標時，再按一次空白鍵收線就能釣到魚。
+      成功收線後會抽出今日運勢。每次只能釣一次，按 R 鍵或重新開始按鈕可以再抽一次。
+    </p>
+  </main>
+
+  <script>
+    (() => {
+      const fishTypes = [
+        { name: "小魚", emoji: "🐟" },
+        { name: "中型魚", emoji: "🐠" },
+        { name: "金色魚", emoji: "🐡" }
+      ];
+      const fortunes = [
+        { name: "大吉", advice: "今天充滿好機會，勇敢踏出第一步！" },
+        { name: "中吉", advice: "穩穩前進就會有收穫，保持好心情！" },
+        { name: "小吉", advice: "小小的幸運正在靠近，留意身邊的驚喜！" },
+        { name: "吉", advice: "平凡的一天也有值得珍惜的美好。" },
+        { name: "末吉", advice: "先耐心準備，晚一點會有更好的消息。" },
+        { name: "凶", advice: "今天適合放慢腳步，休息一下再重新出發。" }
+      ];
+
+      const fortuneStatusElement = document.querySelector("#fortuneStatus");
+      const fortuneResultElement = document.querySelector("#fortuneResult");
+      const fortuneAdviceElement = document.querySelector("#fortuneAdvice");
+      const messageElement = document.querySelector("#message");
+      const castButton = document.querySelector("#castButton");
+      const catchButton = document.querySelector("#catchButton");
+      const restartButton = document.querySelector("#restartButton");
+      const lineElement = document.querySelector("#line");
+      const floatElement = document.querySelector("#float");
+
+      let gameActive = true;
+      let hasFished = false;
+      let castActive = false;
+      let fishBiting = false;
+      let collisionTimerId = null;
+
+      function setMessage(text) {
+        messageElement.textContent = text;
+      }
+
+      function clearCastTimers() {
+        window.clearInterval(collisionTimerId);
+        collisionTimerId = null;
+      }
+
+      function resetCast() {
+        clearCastTimers();
+        castActive = false;
+        fishBiting = false;
+        lineElement.classList.remove("active");
+        floatElement.classList.remove("active");
+        castButton.disabled = !gameActive || hasFished;
+        catchButton.disabled = true;
+      }
+
+      function startRound() {
+        gameActive = true;
+        hasFished = false;
+        resetCast();
+        fortuneStatusElement.textContent = "—";
+        fortuneResultElement.textContent = "尚未抽籤";
+        fortuneAdviceElement.textContent = "釣起一條魚，就能知道今天的運勢。";
+        setMessage("準備好了嗎？按空白鍵拋竿開始！");
+      }
+
+      function castLine() {
+        if (!gameActive || castActive || hasFished) {
+          return;
+        }
+
+        hasFished = true;
+        castActive = true;
+        fishBiting = false;
+        castButton.disabled = true;
+        catchButton.disabled = false;
+        lineElement.classList.add("active");
+        floatElement.classList.add("active");
+        setMessage("魚線已拋出，等魚游到浮標旁……");
+
+        collisionTimerId = window.setInterval(checkFishCollision, 80);
+      }
+
+      function checkFishCollision() {
+        if (!castActive || fishBiting || !gameActive) {
+          return;
+        }
+
+        const floatBox = floatElement.getBoundingClientRect();
+        const fishElements = document.querySelectorAll(".fish");
+        const fishTouched = Array.from(fishElements).some((fishElement) => {
+          const fishBox = fishElement.getBoundingClientRect();
+          return fishBox.left < floatBox.right &&
+            fishBox.right > floatBox.left &&
+            fishBox.top < floatBox.bottom &&
+            fishBox.bottom > floatBox.top;
+        });
+
+        if (fishTouched) {
+          fishBiting = true;
+          window.clearInterval(collisionTimerId);
+          collisionTimerId = null;
+          setMessage("🐟 魚碰到浮標了！現在按空白鍵收線！");
+        }
+      }
+
+      function catchFish() {
+        if (!castActive || !gameActive) {
+          return;
+        }
+
+        if (!fishBiting) {
+          setMessage("太早了！要等魚碰到浮標，再按空白鍵收線。");
+          resetCast();
+          return;
+        }
+
+        const fish = fishTypes[Math.floor(Math.random() * fishTypes.length)];
+        const fortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+        fortuneStatusElement.textContent = fortune.name;
+        fortuneResultElement.textContent = fortune.name;
+        fortuneAdviceElement.textContent = fortune.advice;
+        setMessage(`${fish.emoji} 釣到${fish.name}！今日運勢：${fortune.name}！`);
+        resetCast();
+      }
+
+      castButton.addEventListener("click", castLine);
+      catchButton.addEventListener("click", catchFish);
+      restartButton.addEventListener("click", startRound);
+      document.addEventListener("keydown", (event) => {
+        if (event.key.toLowerCase() === "r") {
+          startRound();
+        } else if (event.code === "Space") {
+          event.preventDefault();
+          if (fishBiting || castActive) {
+            catchFish();
+          } else {
+            castLine();
+          }
+        }
+      });
+
+      startRound();
+    })();
+  </script>
+</body>
+</html>
